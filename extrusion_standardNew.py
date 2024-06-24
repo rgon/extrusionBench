@@ -3,6 +3,7 @@ import FreeCAD as App
 import Part
 
 EXTRUSION_OPTIONS_GROUP = 'Extrusion'
+PROPERTY_READONLY = 1
 
 class ExtrusionObject:
     def __init__(self, obj):
@@ -15,6 +16,10 @@ class ExtrusionObject:
                         '30x30','30x60','30x90',
                         '40x40','40x80'
                         ]
+
+        # Add read only property of width and depth
+        obj.addProperty("App::PropertyLength", "Width", "", "Width of the extrusion", PROPERTY_READONLY)
+        obj.addProperty("App::PropertyLength", "Depth", "", "Depth of the extrusion", PROPERTY_READONLY)
 
         # Default Values
         obj.Length = 100.0
@@ -32,16 +37,20 @@ class ExtrusionObject:
 
         if (not self.areValuesvalid(obj)):
             return
+        
+
+        width = int(obj.Standard.split('x')[0])
+        depth = int(obj.Standard.split('x')[1])
+
+        obj.Width = width
+        obj.Depth = depth
 
         def createUnknownStandard():
-            length = int(obj.Standard.split('x')[0])
-            width = int(obj.Standard.split('x')[1])
-
             # We create 4 points for the 4 corners:
             v1 = App.Vector(0, 0, 0)
-            v2 = App.Vector(length, 0, 0)
-            v3 = App.Vector(length,width, 0)
-            v4 = App.Vector(0, width, 0)
+            v2 = App.Vector(width, 0, 0)
+            v3 = App.Vector(width,depth, 0)
+            v4 = App.Vector(0, depth, 0)
 
             # We create 4 edges:
             e1 = Part.LineSegment(v1, v2).toShape()
